@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { booleanFlagSchema } from "./billing";
 
 const envSchema = z.object({
   JWT_SECRET: z.string(),
@@ -11,5 +12,6 @@ const envSchema = z.object({
 
   FRONTEND_URL: z.string(),
   APP_DOMAIN: z.string(),
+  BILLING_ENABLED: booleanFlagSchema,
 });
 export const env = envSchema.parse(process.env);

@@ -320,7 +320,7 @@ passport.use(new GitHubStrategy({
     });
 
     if(!user) {
-      db.transaction(async (tx) => {
+      await db.transaction(async (tx) => {
         await tx.insert(Schema.users).values({
           id: githubUserId,
           name: profile.username || profile.displayName,
@@ -438,10 +438,11 @@ app.get('/auth/github/callback',
       res.redirect(`${env.FRONTEND_URL}/login/success`);
     } else if (state?.startsWith('onboarding:')) {
       const onboarding = state.split(':')[1];
+      const isFreeOnboarding = !env.BILLING_ENABLED || onboarding === 'free';
       // Set cookie and redirect to the onboarding page
       res.cookie(AUTH_COOKIE_NAME, token, {domain: env.APP_DOMAIN, httpOnly: true});
       res.cookie(AUTH_HINT_COOKIE_NAME, JSON.stringify(authHintPayload), {domain: env.APP_DOMAIN, httpOnly: false});
-      res.redirect(`${env.FRONTEND_URL}/onboarding/account-setup?isFree=${onboarding === 'free' ? 'true' : 'false'}`);
+      res.redirect(`${env.FRONTEND_URL}/onboarding/account-setup?isFree=${isFreeOnboarding ? 'true' : 'false'}`);
     } else {
       // Set cookie and redirect to the dashboard
       res.cookie(AUTH_COOKIE_NAME, token, {domain: env.APP_DOMAIN, httpOnly: true});

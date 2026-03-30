@@ -4,6 +4,8 @@ import { contract } from "@repo/rest";
 import { Schema } from "@repo/db";
 import { db } from "@repo/db";
 import { and, eq, inArray, ne } from "drizzle-orm";
+import { SELF_HOSTED_LIMITS } from "../billing";
+import { env } from "../env";
 import { isUserRequester } from "../types/cast";
 
 export const getMe = async ({ req }: { req: TsRestRequest<typeof contract.user.getUser> }) => {
@@ -53,6 +55,12 @@ export const getMe = async ({ req }: { req: TsRestRequest<typeof contract.user.g
       body: { message: 'User not found' }
     }
   }
+  const limits = env.BILLING_ENABLED
+    ? {
+        maxOrganizations: user.maxOrganizations,
+        maxUsersPerOrganization: user.maxUsersPerOrganization
+      }
+    : SELF_HOSTED_LIMITS;
 
   return {
     status: 200 as const,
@@ -66,10 +74,7 @@ export const getMe = async ({ req }: { req: TsRestRequest<typeof contract.user.g
         name: upk.publicKey.name,
         algorithm: upk.publicKey.algorithm
       })),
-      limits: {
-        maxOrganizations: user.maxOrganizations,
-        maxUsersPerOrganization: user.maxUsersPerOrganization
-      }
+      limits
     }
   }
 }

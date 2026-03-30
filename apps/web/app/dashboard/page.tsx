@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "../auth/helpers";
 import Dashboard from "./content";
+import { env } from "../env";
 import { createTsrClient } from "../tsr-server";
 
 export default async function DashboardPage() {
@@ -14,5 +15,5 @@ export default async function DashboardPage() {
   if(userData.status !== 200) {
     return redirect('/onboarding');
   }
-  return <Dashboard user={userData.body} />;
+  return <Dashboard user={userData.body} billingEnabled={env.BILLING_ENABLED} />;
 }

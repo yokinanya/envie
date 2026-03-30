@@ -11,6 +11,9 @@ const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY, {
 
 export async function POST(_: NextRequest) {
   try {
+    if (!env.BILLING_ENABLED) {
+      return NextResponse.json({ error: 'Billing is disabled for this deployment' }, { status: 404 });
+    }
     if (!stripe) {
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 });
     }

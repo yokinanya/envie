@@ -5,6 +5,7 @@ import { contract } from '@repo/rest';
 import { getOrganization as getOrganizationByPath } from '../queries/by-path';
 import { isUserRequester } from '../types/cast';
 import { getUserByNameOrId } from '../queries/user';
+import { env } from '../env';
 
 export const organizationExists = async ({ params: { name } }: { params: TsRestRequest<typeof contract.organizations.organizationExists>['params'] }) => {
   const organization = await db.select({ count: count() })
@@ -68,7 +69,7 @@ export const createOrganization = async ({
       body: { message: 'User not found' }
     };
   }
-  if(user.createdOrganizations.length >= user.maxOrganizations) {
+  if(env.BILLING_ENABLED && user.createdOrganizations.length >= user.maxOrganizations) {
     return {
       status: 403 as const,
       body: { message: 'You have reached the maximum number of organizations you can create' }
@@ -271,7 +272,7 @@ export const createOrganizationInvite = async ({
   }).from(Schema.organizationRoles)
     .where(eq(Schema.organizationRoles.organizationId, organization.id));
   
-  if((organizationMembersCount?.count ?? 0) >= organizationCreator.maxUsersPerOrganization) {
+  if(env.BILLING_ENABLED && (organizationMembersCount?.count ?? 0) >= organizationCreator.maxUsersPerOrganization) {
     return {
       status: 403 as const,
       body: { message: `This organization has reached maximum amount of ${organizationCreator.maxUsersPerOrganization} members` }
@@ -347,7 +348,7 @@ export const acceptOrganizationInvite = async ({
       };
     }
     const maxAllowedMembers = organizationCreator.maxUsersPerOrganization;
-    if((invite.organization?.roles?.length ?? 0) >= maxAllowedMembers) {
+    if(env.BILLING_ENABLED && (invite.organization?.roles?.length ?? 0) >= maxAllowedMembers) {
       return {
         status: 403 as const,
         body: { message: `This organization has reached maximum amount of ${maxAllowedMembers} members` }
@@ -643,4 +644,3 @@ export const updateAccess = async ({
     };
   }
 };
-

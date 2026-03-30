@@ -17,6 +17,9 @@ const createCheckoutSessionSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    if (!env.BILLING_ENABLED) {
+      return NextResponse.json({ error: 'Billing is disabled for this deployment' }, { status: 404 });
+    }
     if (!stripe) {
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 });
     }

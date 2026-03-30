@@ -1,10 +1,12 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+import { booleanFlagSchema } from "./boolean-flag";
 
 export const env = createEnv({
   server: {
     API_URL: z.string().url(),
     APP_URL: z.string().url().optional(),
+    BILLING_ENABLED: booleanFlagSchema,
     STRIPE_SECRET_KEY: z.string().optional(),
     STRIPE_TEAM_PRICE_ID: z.string().optional(),
     JWT_SECRET: z.string(),
@@ -17,6 +19,7 @@ export const env = createEnv({
   runtimeEnv: {
     APP_URL: process.env.APP_URL,
     API_URL: process.env.API_URL,
+    BILLING_ENABLED: process.env.BILLING_ENABLED,
     JWT_SECRET: process.env.JWT_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
 

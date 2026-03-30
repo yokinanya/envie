@@ -4,6 +4,8 @@
 
 *Keep your secrets and environment variables secure and organized.*
 
+[中文说明](./README.zh-CN.md)
+
 </div>
 
 Envie is both a secret manager for production use and a developer tool for better management of environment variables. Declutter and secure your developer machine by eliminating the need for local `.env` files.

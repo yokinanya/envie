@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAuthenticatedUser } from '../../auth/helpers';
 import AccountSetupContent from './content';
+import { env } from '../../env';
 import { createTsrClient } from '../../tsr-server';
 
 export default async function ProjectAndOrganizationPage({
@@ -9,6 +10,8 @@ export default async function ProjectAndOrganizationPage({
   searchParams: Promise<{ isFree?: string }>
 }) {
   const { isFree } = await searchParams;
+  const billingEnabled = env.BILLING_ENABLED;
+  const isFreePlan = !billingEnabled || isFree === 'true';
   const user = await getAuthenticatedUser();
   if (!user) {
     return redirect('/onboarding');
@@ -26,12 +29,12 @@ export default async function ProjectAndOrganizationPage({
     ? organizationsResponse.body[0].name 
     : null;
 
-  const personalOrgNameToShow = isFree === 'true' ? personalOrgName : null;
+  const personalOrgNameToShow = isFreePlan ? personalOrgName : null;
 
   return <AccountSetupContent
     personalOrgName={personalOrgNameToShow}
     email={userResponse.status === 200 ? userResponse.body.email : null}
-    isFree={isFree === 'true'}
+    isFree={isFreePlan}
+    billingEnabled={billingEnabled}
   />;
 }
-

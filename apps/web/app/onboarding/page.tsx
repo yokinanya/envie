@@ -1,12 +1,69 @@
-"use client";
-
-import React from 'react';
 import { Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@repo/ui/button';
-import { env } from 'next-runtime-env';
+import { env } from '../env';
 
 export default function NewUserPage() {
+  const billingEnabled = env.BILLING_ENABLED;
+  const githubOnboardingUrl = `${env.NEXT_PUBLIC_API_URL}/auth/github?onboarding=free`;
+
+  if (!billingEnabled) {
+    return (
+      <div>
+        <main className="flex flex-col items-center justify-start h-full overflow-hidden">
+          <div
+            className="relative flex min-h-[217px] w-full items-center justify-center py-12"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(156, 163, 175, 0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(156, 163, 175, 0.08) 1px, transparent 1px)
+              `,
+              backgroundSize: '24px 24px'
+            }}
+          >
+            <div className="relative px-4 text-center">
+              <h1 className="mb-2 text-2xl font-bold md:text-3xl">
+                Continue to your self-hosted instance
+              </h1>
+              <p className="text-sm text-neutral-400">
+                Billing is disabled for this deployment. All collaboration features are available.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-12 w-full max-w-2xl px-6">
+            <div className="rounded-lg border border-white/15 bg-white/[.03] p-6">
+              <div className="space-y-4">
+                {[
+                  'Unlimited organizations',
+                  'Unlimited team members',
+                  'Unlimited projects and environments',
+                  'Role-based collaboration'
+                ].map((feature) => (
+                  <div key={feature} className="flex items-center gap-3 text-sm text-neutral-200">
+                    <Check className="h-4 w-4 text-accent-400" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex justify-center">
+                <Link href={githubOnboardingUrl}>
+                  <Button variant="regular" className="min-w-[220px]">
+                    Continue with GitHub
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+        <footer className="p-2 text-center text-[10px] font-medium text-neutral-600">
+          © {new Date().getFullYear()} envie
+        </footer>
+      </div>
+    );
+  }
+
   const features = [
     {
       name: 'Price',
@@ -114,7 +171,7 @@ export default function NewUserPage() {
                   ))}
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center">
-                  <Link href={`${env("NEXT_PUBLIC_API_URL")}/auth/github?onboarding=free`}>
+                  <Link href={githubOnboardingUrl}>
                     <Button variant="regular" className="min-w-[180px]">
                       Continue with Free Plan
                     </Button>
@@ -146,7 +203,7 @@ export default function NewUserPage() {
                   ))}
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center">
-                  <Link href={`${env("NEXT_PUBLIC_API_URL")}/auth/github?onboarding=team`}>
+                  <Link href={`${env.NEXT_PUBLIC_API_URL}/auth/github?onboarding=team`}>
                     <Button variant="regular" className="min-w-[180px] bg-white/[.08] hover:bg-white/[.12] border-white/20">
                       Continue with Team Plan
                     </Button>

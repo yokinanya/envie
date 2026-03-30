@@ -11,9 +11,9 @@ import Link from "next/link";
 import { env } from "next-runtime-env";
 
 type User = ClientInferResponseBody<typeof contract.user.getUser, 200>
-export default function WebSidebar({user}: {user: User}) {
+export default function WebSidebar({ user, billingEnabled }: { user: User; billingEnabled: boolean }) {
   const router = useRouter();
-  const isPaidUser = (user?.limits?.maxOrganizations ?? 1) > 1;
+  const isPaidUser = billingEnabled && (user?.limits?.maxOrganizations ?? 1) > 1;
   const currentPath = usePathname();
 
   const handleManageBilling = async () => {
@@ -69,7 +69,7 @@ export default function WebSidebar({user}: {user: User}) {
           </Button>
         </Link>
         
-        {!isPaidUser && (
+        {billingEnabled && !isPaidUser && (
           <Button
             onClick={handleUpgrade}
             variant="ghost"
@@ -115,7 +115,7 @@ export default function WebSidebar({user}: {user: User}) {
             </PopoverTrigger>
             <PopoverContent className="w-48 bg-neutral-900 border-neutral-800 rounded">
               <div className="py-1">
-                {isPaidUser ? (
+                {billingEnabled && isPaidUser ? (
                   <Button
                     onClick={handleManageBilling}
                     variant="ghost"
@@ -123,7 +123,7 @@ export default function WebSidebar({user}: {user: User}) {
                     <CreditCard className="w-4 h-4" />
                     Manage Billing
                   </Button>
-                ) : (
+                ) : billingEnabled ? (
                   <Button
                     onClick={handleUpgrade}
                     variant="ghost"
@@ -131,7 +131,7 @@ export default function WebSidebar({user}: {user: User}) {
                     <Zap className="w-4 h-4" />
                     Upgrade Plan
                   </Button>
-                )}
+                ) : null}
                 <div className="border-t border-neutral-800 my-1"></div>
                 <div className="px-4 py-2">
                   <Button variant="ghost" onClick={() => {

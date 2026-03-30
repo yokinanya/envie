@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from '@tanstack/react-form';
 import type { AnyFieldApi } from '@tanstack/react-form';
-import { nameSchema, PlanSelection } from '../schemas';
+import { nameSchema } from '../schemas';
 import { tsr } from '../../tsr';
 import { recordConversion } from '../../tracker';
 import { Button } from '@repo/ui/button';
-import { Switch } from '@repo/ui/switch';
 import { Input } from '@repo/ui/input';
 import { NumberInput } from '@repo/ui/number-input';
 import Link from 'next/link';
@@ -28,18 +27,18 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 export default function AccountSetupContent({ 
   personalOrgName,
   email,
-  isFree
-}: { 
+  isFree,
+  billingEnabled
+}: {
   personalOrgName: string | null,
   email: string | null,
-  isFree: boolean
+  isFree: boolean,
+  billingEnabled: boolean
 }) {
-  const [planData, setPlanData] = useState<PlanSelection | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const router = useRouter();
   const { mutateAsync: updateEmail } = tsr.user.updateEmail.useMutation();
-
-  console.log('personalOrgName', personalOrgName);
+  const showBillingFlow = billingEnabled && !isFree;
 
   const form = useForm({
     defaultValues: {
@@ -48,27 +47,21 @@ export default function AccountSetupContent({
       email: email ?? '',
     },
     onSubmit: async ({ value }) => {
-
       await updateEmail({
         body: {
           email: value.email,
         },
       });
-
-      if (isFree) {
-        // Create project in personal organization
+      if (!showBillingFlow) {
         if (!personalOrgName) {
           throw new Error('User has no personal organization');
         }
-
         recordConversion(0);
         router.push('/dashboard');
       } else {
-        // Start Stripe checkout flow
         setIsProcessingPayment(true);
         try {
           const quantity = Math.max(1, value.teamSize - 2);
-          
           recordConversion(quantity * 5);
           const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
@@ -80,11 +73,8 @@ export default function AccountSetupContent({
               organizationName: value.organizationName,
             }),
           });
-
           const data = await response.json();
-          
           if (response.ok && data.url) {
-            // Redirect to Stripe Checkout
             window.location.href = data.url;
           } else {
             throw new Error(data.error || 'Failed to create checkout session');
@@ -96,33 +86,26 @@ export default function AccountSetupContent({
       }
     },
   });
-
-
   const calculatePrice = (teamSize: number): number => {
-    // $5 for 3 members, $5 for each additional member
     return (teamSize - 2) * 5;
   };
-
-
   return (
     <div>
       <main className="flex flex-col items-center justify-start h-full overflow-hidden">
-        <div className="relative w-full py-12 mb-8 min-h-[217px] flex items-center justify-center"
-        style={{
-              backgroundImage: `
-                linear-gradient(to right, rgba(156, 163, 175, 0.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(156, 163, 175, 0.08) 1px, transparent 1px)
-              `,
-              backgroundSize: '24px 24px'
-            }}
+        <div
+          className="relative flex min-h-[217px] w-full items-center justify-center py-12"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(156, 163, 175, 0.08) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(156, 163, 175, 0.08) 1px, transparent 1px)
+            `,
+            backgroundSize: '24px 24px'
+          }}
         >
-          <div className="relative text-center px-4">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">
-              Account setup
-            </h1>
+          <div className="relative px-4 text-center">
+            <h1 className="mb-2 text-2xl font-bold md:text-3xl">Account setup</h1>
           </div>
         </div>
-        
         <div className="w-full max-w-2xl px-4">
           <form
             onSubmit={(e) => {
@@ -132,22 +115,21 @@ export default function AccountSetupContent({
             }}
             className="space-y-8"
           >
-            {/* Organization Section */}
             <div>
               <div className="mb-2">
                 <h2 className="text-lg text-neutral-100 mb-2">
-                  {isFree ? 'Your Organization' : 'Organization Name'}
+                  {showBillingFlow ? 'Organization Name' : 'Your Organization'}
                 </h2>
                 <p className="text-neutral-400 text-xs">
-                  {isFree 
-                    ? 'This is your personal organization included in the free plan.' 
-                    : 'Choose a unique name for your organization.'}
+                  {!billingEnabled
+                    ? 'This self-hosted deployment includes all collaboration features.'
+                    : isFree
+                      ? 'This is your personal organization included in the free plan.'
+                      : 'Choose a unique name for your organization.'}
                 </p>
               </div>
-              
               <div className="space-y-4">
-                {/* Organization Display/Input */}
-                {isFree ? (
+                {!showBillingFlow ? (
                   <Input
                     value={personalOrgName ?? ''}
                     disabled={true}
@@ -191,9 +173,7 @@ export default function AccountSetupContent({
                     )}
                   />
                 )}
-                
-                {/* Team Size for Paid Plan */}
-                {!isFree && (
+                {showBillingFlow && (
                   <div className="mt-4">
                     <h2 className="text-lg text-neutral-100 mb-2">
                       Team Size
@@ -201,7 +181,6 @@ export default function AccountSetupContent({
                     <p className="text-neutral-400 text-xs">
                       Choose the number of seats in your organization.
                     </p>
-
                     <form.Field
                       name="teamSize"
                       validators={{
@@ -237,8 +216,7 @@ export default function AccountSetupContent({
                     />
                   </div>
                 )}
-
-                {isFree && (
+                {billingEnabled && isFree && (
                   <div className="text-neutral-400 text-xs">
                     <p>Want a custom organization name and the ability to invite others to collaborate?</p>
                     <Link href="/onboarding/account-setup" className="text-accent-600">Switch to a paid plan</Link>
@@ -246,24 +224,15 @@ export default function AccountSetupContent({
                 )}
               </div>
             </div>
-
-            {/* Separator */}
             <div className="border-t border-neutral-800 my-8"></div>
-
-            {/* Email Section */}
             <div>
               <div className="mb-6">
-                <h2 className="text-lg text-neutral-100 mb-2">
-                  Email
-                </h2>
-                <p className="text-neutral-400 text-xs">
-                  Please enter your email address.*
-                </p>
+                <h2 className="mb-2 text-lg text-neutral-100">Email</h2>
+                <p className="text-xs text-neutral-400">Please enter your email address.*</p>
                 <p className="text-neutral-400 text-[10px]">
                   * by providing your email address, you agree to receive product updates and emails necessary for the service such as account verification.
                 </p>
               </div>
-              
               <form.Field
                 name="email"
                 validators={{
@@ -288,7 +257,6 @@ export default function AccountSetupContent({
                 )}
               />
             </div>
-
             <div className="flex justify-center mt-10">
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -297,9 +265,9 @@ export default function AccountSetupContent({
                     type="submit"
                     disabled={!canSubmit || isProcessingPayment}
                     className="min-w-[200px]"
-                    variant={isFree ? 'regular' : 'accent'}
+                    variant={showBillingFlow ? 'accent' : 'regular'}
                   >
-                    {isProcessingPayment ? 'Processing...' : isSubmitting ? 'Submitting...' : isFree ? 'Continue' : 'Continue to Checkout'}
+                    {isProcessingPayment ? 'Processing...' : isSubmitting ? 'Submitting...' : showBillingFlow ? 'Continue to Checkout' : 'Continue'}
                   </Button>
                 )}
               />

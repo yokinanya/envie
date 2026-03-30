@@ -13,6 +13,9 @@ const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY, {
 export async function GET(_: NextRequest, context: { params: Promise<{ session_id: string }> }) {
   const { session_id } = await context.params;
   try {
+    if (!env.BILLING_ENABLED) {
+      return NextResponse.json({ error: 'Billing is disabled for this deployment' }, { status: 404 });
+    }
     if (!stripe) {
       return NextResponse.json({ error: 'Stripe is not configured' }, { status: 500 });
     }

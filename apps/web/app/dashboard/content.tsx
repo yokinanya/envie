@@ -8,7 +8,7 @@ import { contract } from '@repo/rest';
 import { ClientInferResponseBody } from '@ts-rest/core';
 
 type User = ClientInferResponseBody<typeof contract.user.getUser, 200>
-export default function Dashboard({user}: {user: User}) {
+export default function Dashboard({ user, billingEnabled }: { user: User; billingEnabled: boolean }) {
   const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({});
 
   const copyToClipboard = async (text: string, key: string) => {
@@ -25,7 +25,7 @@ export default function Dashboard({user}: {user: User}) {
 
   return (
     <div className="flex flex-col h-screen h-full">
-      <Sidebar user={user} />
+      <Sidebar user={user} billingEnabled={billingEnabled} />
       <main className="flex flex-col items-center justify-start gap-8 h-full px-8 py-8 md:ml-64 max-w-[1000px] mt-10">
         <div className="max-w-4xl">
           <h1 className="font-mono text-neutral-100 text-2xl mb-2">Getting Started with Envie</h1>
