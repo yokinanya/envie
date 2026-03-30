@@ -36,12 +36,7 @@ const AUTH_COOKIE_NAME = 'envie_token';
 // This cookie is just a hint for frontend to know when the token expires
 const AUTH_HINT_COOKIE_NAME = 'envie_token_expiry';
 
-// Start by running migrations
-try {
 await runMigrations();
-} catch (e) {
-  console.error('Failed to run migrations', e);
-}
 
 const app = express();
 app.use(express.json());

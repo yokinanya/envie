@@ -32,6 +32,7 @@ WORKDIR /app
 # Copy built application
 COPY --from=builder --chown=bun:nodejs /app/apps/api/dist ./dist
 COPY --from=builder --chown=bun:nodejs /app/apps/api/package.json ./package.json
+COPY --from=builder --chown=bun:nodejs /app/packages/db/drizzle ./drizzle
 
 # Switch to non-root user
 USER bun

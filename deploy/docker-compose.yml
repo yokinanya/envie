@@ -1,0 +1,29 @@
+name: envie
+
+services:
+  envie-api:
+    container_name: envie-api
+    image: yokinanya/envie-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env.shared
+      - .env.api
+    networks:
+      - envie-network
+
+  envie-web:
+    container_name: envie-web
+    image: yokinanya/envie-web:latest
+    restart: unless-stopped
+    depends_on:
+      - envie-api
+    env_file:
+      - .env.shared
+      - .env.web
+    networks:
+      - envie-network
+
+networks:
+  envie-network:
+    name: envie-network
+    driver: bridge
