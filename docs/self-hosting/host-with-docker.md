@@ -2,8 +2,8 @@
 
 Envie is available on Docker Hub. To self-host, you need these two images:
 
-- [envie-api](https://hub.docker.com/r/salhdev/envie-api)
-- [envie-web](https://hub.docker.com/r/salhdev/envie-web)
+- [envie-api](https://hub.docker.com/r/yokinanya/envie-api)
+- [envie-web](https://hub.docker.com/r/yokinanya/envie-web)
 
 For a normal self-hosted deployment, set `BILLING_ENABLED=false` for both the API and web containers. With billing disabled, organization creation, invitations, and other collaboration features are available without Stripe.
 
@@ -15,8 +15,8 @@ Other prerequisites:
 To get started, pull the two docker images from the Docker Hub registry:
 
 ```bash
-docker pull salhdev/envie-api:latest && \
-docker pull salhdev/envie-web:latest
+docker pull yokinanya/envie-api:latest && \
+docker pull yokinanya/envie-web:latest
 ```
 
 Next, start the containers.
@@ -35,7 +35,7 @@ docker run -p 3001:3001 \
 -e FRONTEND_URL="http://localhost" \
 -e APP_DOMAIN="localhost" \
 -e BILLING_ENABLED=false \
-salhdev/envie-api:latest
+yokinanya/envie-api:latest
 ```
 
 Required API environment variables:
@@ -67,7 +67,7 @@ docker run -p 80:3000 \
 -e JWT_SECRET=<same-as-api> \
 -e DATABASE_URL=<same-as-api> \
 -e BILLING_ENABLED=false \
-salhdev/envie-web:latest
+yokinanya/envie-web:latest
 ```
 
 Required web environment variables:

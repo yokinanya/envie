@@ -2,8 +2,8 @@
 
 Envie 已发布到 Docker Hub。要进行自托管部署，你需要下面两个镜像：
 
-- [envie-api](https://hub.docker.com/r/salhdev/envie-api)
-- [envie-web](https://hub.docker.com/r/salhdev/envie-web)
+- [envie-api](https://hub.docker.com/r/yokinanya/envie-api)
+- [envie-web](https://hub.docker.com/r/yokinanya/envie-web)
 
 对于普通的自托管部署，请同时为 API 和 Web 容器设置 `BILLING_ENABLED=false`。关闭计费后，组织创建、邀请成员以及其他协作功能都可以在没有 Stripe 的情况下使用。
 
@@ -16,8 +16,8 @@ Envie 已发布到 Docker Hub。要进行自托管部署，你需要下面两个
 首先，从 Docker Hub 拉取这两个镜像：
 
 ```bash
-docker pull salhdev/envie-api:latest && \
-docker pull salhdev/envie-web:latest
+docker pull yokinanya/envie-api:latest && \
+docker pull yokinanya/envie-web:latest
 ```
 
 然后启动容器。
@@ -36,7 +36,7 @@ docker run -p 3001:3001 \
 -e FRONTEND_URL="http://localhost" \
 -e APP_DOMAIN="localhost" \
 -e BILLING_ENABLED=false \
-salhdev/envie-api:latest
+yokinanya/envie-api:latest
 ```
 
 API 必需的环境变量：
@@ -68,7 +68,7 @@ docker run -p 80:3000 \
 -e JWT_SECRET=<same-as-api> \
 -e DATABASE_URL=<same-as-api> \
 -e BILLING_ENABLED=false \
-salhdev/envie-web:latest
+yokinanya/envie-web:latest
 ```
 
 Web 必需的环境变量：
