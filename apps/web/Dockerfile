@@ -37,6 +37,7 @@ WORKDIR /app
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --chown=nextjs:nodejs docs ./docs
 
 # Create entrypoint script to modify required env vars for this image
 RUN echo '#!/bin/sh' > /entrypoint.sh && \

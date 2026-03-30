@@ -177,7 +177,7 @@ Example of an `envierc.json`
 {
   "organizationName": "acme",
   "projectName": "acme-web-application",
-  "instanceUrl": "https://api.envie.cloud"
+  "instanceUrl": "https://api.example.com"
 }
 ```
 
@@ -234,17 +234,17 @@ Local configuration can also be managed via a `config.json` file, stored under t
 
 ## Self Hosting
 > [!TIP]  
-> Not into self hosting? Envie Cloud offers a hosted instance that is **free forever** for individual use with affordable per-user licensing available for teams.
+> Not into self hosting? You can also try the hosted Envie Cloud service provided by the original project, which is **free forever** for individual use with affordable per-user licensing available for teams.
 >
 > Head over to <https://envie.cloud> and sign up to get started with a forever-free plan!
 
 
 Envie can be self-hosted using Docker. Two images are required:
 
-- **API**: [salhdev/envie-api](https://hub.docker.com/r/salhdev/envie-api)
-- **Web client**: [salhdev/envie-web](https://hub.docker.com/r/salhdev/envie-web)
+- **API**: [yokinanya/envie-api](https://hub.docker.com/r/yokinanya/envie-api)
+- **Web client**: [yokinanya/envie-web](https://hub.docker.com/r/yokinanya/envie-web)
 
-Image usage documented on Docker hub.
+Image usage is documented on Docker Hub. Deployment details are available in [docs/self-hosting/host-with-docker.md](./docs/self-hosting/host-with-docker.md).
 
 ## Security Practices
 
@@ -288,3 +288,8 @@ This is a TypeScript monorepo built with Turborepo containing:
 - PostgreSQL database
 - Redis instance
 - GitHub OAuth application
+
+## Acknowledgements
+
+This repository builds on the original [ilmari-h/envie](https://github.com/ilmari-h/envie) project.
+Thanks to the original author and contributors for the groundwork that made this self-host focused fork possible.

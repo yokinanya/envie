@@ -1,79 +1,80 @@
 "use client";
 
 import Markdown from "@repo/ui/markdown";
-import Link from "next/link";
 import { Button } from "@repo/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
+
+import type { AdjacentPage } from "./guide-content";
 
 export type MarkdownPage = {
   markdown: string;
   header: string;
-}
+};
 
-export type AdjacentPage = {
-  title: string;
-  slug: string;
-}
-
-export default function MarkdownContent({ 
-  markdownPages, 
-  nextPage,
-  previousPage
-}: { 
+type MarkdownContentProps = {
   markdownPages: MarkdownPage[];
   nextPage?: AdjacentPage;
   previousPage?: AdjacentPage;
-}) {
+  nextLabel: string;
+  previousLabel: string;
+};
+
+export default function MarkdownContent({
+  markdownPages,
+  nextPage,
+  previousPage,
+  nextLabel,
+  previousLabel,
+}: MarkdownContentProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const scrollToHash = useCallback(() => {
     if (typeof window === "undefined") return;
+
     const hash = window.location.hash;
     if (!hash || hash.length <= 1) return;
+
     const targetText = decodeURIComponent(hash.slice(1)).trim();
-    const container = containerRef.current;
-    if (!container) return;
-    const headings = container.querySelectorAll("h1, h2, h3, h4");
+    const headings = containerRef.current?.querySelectorAll("h1, h2, h3, h4");
+    if (!headings) return;
+
     for (const heading of Array.from(headings)) {
-      const text = (heading.textContent || "").trim();
-      if (text === targetText) {
+      if ((heading.textContent || "").trim() === targetText) {
         heading.scrollIntoView({ behavior: "auto" });
         break;
       }
     }
   }, []);
 
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   useEffect(() => {
-      scrollToHash();
-  }, [scrollToHash, pathname, searchParams, markdownPages]);
+    scrollToHash();
+  }, [markdownPages, pathname, scrollToHash, searchParams]);
 
   return (
     <div>
       <div ref={containerRef}>
-        <Markdown>{
-          markdownPages.map(page => `# ${page.header}\n${page.markdown}`).join("\n")
-        }</Markdown>
+        <Markdown>{markdownPages.map((page) => `# ${page.header}\n${page.markdown}`).join("\n")}</Markdown>
       </div>
-      
+
       {(nextPage || previousPage) && (
-        <div className="mt-8 pt-6 border-t border-neutral-700">
+        <div className="mt-8 border-t border-neutral-700 pt-6">
           <div className="flex justify-between">
             {previousPage ? (
-              <Link href={`/guide/${previousPage.slug}`}>
-                <Button iconPosition="left" icon={<ChevronLeft className="w-4 h-4" />} variant="ghost">
-                  Previous: {previousPage.title}
+              <Link href={previousPage.href}>
+                <Button iconPosition="left" icon={<ChevronLeft className="h-4 w-4" />} variant="ghost">
+                  {previousLabel}: {previousPage.title}
                 </Button>
               </Link>
             ) : <div className="w-1/2" />}
             {nextPage ? (
-              <Link href={`/guide/${nextPage.slug}`}>
-                <Button iconPosition="right" icon={<ChevronRight className="w-4 h-4" />} variant="ghost">
-                  Next: {nextPage.title}
+              <Link href={nextPage.href}>
+                <Button iconPosition="right" icon={<ChevronRight className="h-4 w-4" />} variant="ghost">
+                  {nextLabel}: {nextPage.title}
                 </Button>
               </Link>
             ) : <div className="w-1/2" />}

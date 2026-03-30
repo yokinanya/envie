@@ -17,5 +17,3 @@ tmp
 apps/web/.next
 apps/api/dist
 packages/*/dist
-
-docs

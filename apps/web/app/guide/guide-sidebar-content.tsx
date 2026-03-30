@@ -3,35 +3,73 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@repo/ui/button";
-import { guidePages } from "./guide-pages";
 import { cn } from "@sglara/cn";
+import {
+  getGuideHref,
+  getGuideLocaleFromPathname,
+  getGuideLocaleLabel,
+  getGuidePages,
+  getGuideUiText,
+  guideLocales,
+  localizeGuidePathname,
+} from "./guide-pages";
+
+function LanguageSwitch({ locale, pathname }: { locale: "en" | "zh-CN"; pathname: string }) {
+  const uiText = getGuideUiText(locale);
+
+  return (
+    <div className="space-y-2 border-b border-neutral-800 pb-4">
+      <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">{uiText.language}</p>
+      <div className="flex gap-2">
+        {guideLocales.map((targetLocale) => (
+          <Link key={targetLocale} href={localizeGuidePathname(pathname, targetLocale)}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "h-8 px-3 text-xs",
+                locale === targetLocale && "bg-neutral-900 text-neutral-100",
+              )}
+              disabled={locale === targetLocale}
+            >
+              {getGuideLocaleLabel(targetLocale)}
+            </Button>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function GuideSidebarContent() {
   const pathname = usePathname();
+  const locale = getGuideLocaleFromPathname(pathname);
+  const guidePages = getGuidePages(locale);
 
   const isCurrentPath = (href: string) => {
     return pathname === href;
   };
 
   return (
-    <div className="mt-4 space-y-2 overflow-y-auto flex-1 pr-2">
+    <div className="mt-4 flex flex-1 flex-col space-y-4 overflow-y-auto pr-2">
+      <LanguageSwitch locale={locale} pathname={pathname} />
       {guidePages.map((page, index) => (
         <div key={index} className="space-y-1">
-          <Link href={`/guide/${page.slug}`} className="block">
+          <Link href={getGuideHref(locale, page.slug)} className="block">
             <Button
               variant="ghost"
               className="opacity-100 w-full justify-start font-semibold text-left"
-              disabled={isCurrentPath(`/guide/${page.slug}`)}
+              disabled={isCurrentPath(getGuideHref(locale, page.slug))}
             >
               {index + 1}.{" "}{page.title}
             </Button>
-            {isCurrentPath(`/guide/${page.slug}`) && (
+            {isCurrentPath(getGuideHref(locale, page.slug)) && (
               <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-neutral-400 to-transparent" />
             )}
           </Link>
           {page.children && page.children.length > 0 && (
             <div className="ml-4 space-y-1">
               {page.children.map((child, childIndex) => {
-                const childHref = `/guide/${page.slug}/${child.slug}`;
+                const childHref = getGuideHref(locale, page.slug, child.slug);
                 return (
                   <Link 
                     key={childIndex} 
