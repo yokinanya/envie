@@ -3,7 +3,7 @@
 When ever you update an environment a new version is created. You can see your environment version history, including which user did the change, by running:
 
 ```bash
-envie environment <organization>:<project>:<environment-name> audit
+envie environment audit <organization>:<project>:<environment-name>
 ```
 
 If you want to restore an existing environment version, you can run:

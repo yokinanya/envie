@@ -3,7 +3,7 @@
 每次更新环境时，都会生成一个新版本。你可以通过下面的命令查看环境版本历史，以及是谁做了修改：
 
 ```bash
-envie environment <organization>:<project>:<environment-name> audit
+envie environment audit <organization>:<project>:<environment-name>
 ```
 
 如果你想恢复到某个已有版本，可以运行：
